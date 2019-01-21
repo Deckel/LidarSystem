@@ -4,6 +4,8 @@ import numpy as np
 import random as random
 from mpl_toolkits.mplot3d import Axes3D
 
+random.seed(56)
+
 #Cartesian to Polar coordinates
 def cartPolar(x, y, z):
     r     = np.sqrt(x**2 + y**2 + z**2)
@@ -18,28 +20,36 @@ def polarCart(r, theta, phi):
     return(x,y,z)
 #Initialize data
 def random_data(i): 
+    
     #Number of angles measurements are taken
-    rowPoints = 10
+    rowPoints =  10
     #Number of LIDAR rangefinders
-    numberRows = 5
+    numberRows = 6
+    
     totalPoints = rowPoints*numberRows
+    
     #Data set length n 
-    r = np.ones(totalPoints)
-    theta = np.ones(totalPoints)
-    phi = np.ones(totalPoints)
+    r = np.ones(totalPoints-rowPoints)
+    theta = np.ones(totalPoints-rowPoints)
+    phi = np.ones(totalPoints-rowPoints)
+    
     #This method should be improved? 
-    for i in range(0,totalPoints,rowPoints):
+    for i in range(0,totalPoints-rowPoints,rowPoints):
         for j in range(0,rowPoints):
-            theta[i+j] = 2*np.pi/rowPoints * j
-            phi[i+j]   = ((np.pi/2)/(totalPoints/rowPoints)) * i/rowPoints
-           
+            theta[i+j] = (2*np.pi) * j/rowPoints
+            phi[i+j]   = (np.pi/2) * i/totalPoints
+                       
             #Lidar entry (random data set for now)
-            r[i+j] += random.random()*0.1 
+            r[i+j] += random.random()*0.1
 
     #Removing duplicate points for last row
-    r[totalPoints-rowPoints:totalPoints] = r[totalPoints-1]
+    r     = np.delete(r,list(np.arange(0,rowPoints-1)), axis = 0)
+    theta = np.delete(theta,list(np.arange(0,rowPoints-1)), axis = 0)
+    phi   = np.delete(phi,list(np.arange(0,rowPoints-1)))
+  
     #Convert spherical polar coordinates into cartesian
     x, y, z = polarCart(r, theta, phi)
+   
     #Draw new plot and set plot paramaters
     ax.clear()
     plt.axis('off')
