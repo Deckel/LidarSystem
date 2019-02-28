@@ -22,7 +22,7 @@ def polarCart(r, theta, phi):
 def random_data(i): 
     
     #Number of angles measurements are taken
-    rowPoints =  10
+    rowPoints =  30
     #Number of LIDAR rangefinders
     numberRows = 6
     
@@ -56,13 +56,14 @@ def random_data(i):
     plt.xlim((-1.5,1.5))
     plt.ylim((-1.5,1.5))
     ax.set_zlim(0, 1.5)
-    ax.plot_trisurf(x,y,z)
+    #ax.view_init(elev=0, azim=0)
+    ax.plot_trisurf(x,y,z, alpha=0.9)
     #ax.scatter(x,y,z)
     
 #Main
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ani = animation.FuncAnimation(fig, random_data, interval=100)
+ani = animation.FuncAnimation(fig, random_data, interval=1000)
 plt.show()
 
 
