@@ -35,14 +35,11 @@ void setup() {
 void loop() {
   // step one revolution  in one direction:
   Serial.println("clockwise");
-  int x = 0;
-  delay(100);
-  // set servo2 to 7 degrees start because its broken
+  // set servo2 to 20 degrees start (range of motion 7 - 173)
   for (pos = 20; pos <= 110; pos += 18){
     myservo.write(pos);
+    //set servo1 to 
     for (int i = 1; i <= 20; i++){
-      x = x + 1;
-      Serial.println(x);
       myStepper.step(20);
       delay(150);
       uint16_t dist = tfmini.getDistance(); 
