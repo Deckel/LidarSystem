@@ -13,8 +13,11 @@ TFMini tfmini;
 Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);
 // create servo object to control a servo
 Servo myservo;
-// variable to store the servo position
-int pos = 0;
+
+int data[30];
+int counter = 0;
+const int rowPoints = 5;
+const int numberRows = 5;
 
 void setup() {
   // set the speed at 60 rpm:
@@ -36,15 +39,16 @@ void loop() {
   // step one revolution  in one direction:
   Serial.println("clockwise");
   // set servo2 to 20 degrees start (range of motion 7 - 173)
-  for (pos = 20; pos <= 110; pos += 18){
-    myservo.write(pos);
+  for (int i = 20; i <= 110; i += (90/numberRows)){
+    myservo.write(i);
     //set servo1 to 
-    for (int i = 1; i <= 20; i++){
+    for (int j = 0; j < 400; j+= (400/numberRows)){
+      
       myStepper.step(20);
-      delay(150);
+      delay(100);
       uint16_t dist = tfmini.getDistance(); 
-      Serial.print(dist);
-      Serial.print(" cm"); 
+      data[counter] = dist;
+      counter += 1;
     }
     delay(500);
     // step one revolution in the other direction:
