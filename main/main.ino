@@ -2,6 +2,7 @@
 #include <Stepper.h>
 #include <Servo.h>
 #include <SoftwareSerial.h>
+#include <string.h>
 #include "TFMini.h"
 
 const int stepsPerRevolution = 400;  // change this to fit the number of steps per revolution
@@ -28,7 +29,6 @@ void setup() {
   Serial.begin(9600);
   // wait for serial port to connect. Needed for native USB port only
   while (!Serial);
-  Serial.println ("Initializing...");
   //Initialize the data rate for the SoftwareSerial port
   mySerial.begin(TFMINI_BAUDRATE);
   //Initialize the TF Mini sensor
@@ -37,14 +37,13 @@ void setup() {
 
 void loop() {
   // step one revolution  in one direction:
-  Serial.println("clockwise");
   // set servo2 to 20 degrees start (range of motion 7 - 173)
   for (int i = 20; i <= 110; i += (90/numberRows)){
     myservo.write(i);
     //set servo1 to 
     for (int j = 0; j < 400; j+= (400/numberRows)){
-      
-      myStepper.step(20);
+      myStepper.step(80);       
+      //Record data into an array
       delay(100);
       uint16_t dist = tfmini.getDistance(); 
       data[counter] = dist;
@@ -52,8 +51,12 @@ void loop() {
     }
     delay(500);
     // step one revolution in the other direction:
-    Serial.println("counterclockwise");
     myStepper.step(-stepsPerRevolution);
     delay(500);
     }
+    //Send data through COM serial
+    for(int i = 0; i < 30; i++){
+      Serial.println(data[i]);
+    }
+  
 }
