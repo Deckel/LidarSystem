@@ -8,15 +8,14 @@
 const int stepsPerRevolution = 400;  // change this to fit the number of steps per revolution
 
 // Setup software serial port 
-SoftwareSerial mySerial(0, 1); // Uno RX (TFMINI TX), Uno TX (TFMINI RX)
+SoftwareSerial mySerial(12, 13); // Uno RX (TFMINI TX), Uno TX (TFMINI RX)
 TFMini tfmini;
 // initialize the stepper library on pins 8 through 11:
 Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);
 // create servo object to control a servo
 Servo myservo;
 
-int data[30];
-int counter = 0;
+
 const int rowPoints = 5;
 const int numberRows = 5;
 
@@ -36,12 +35,17 @@ void setup() {
 }
 
 void loop() {
+  int data[30];
+  int counter = 0;
+  int sent = -1;
+  
   // step one revolution  in one direction:
   // set servo2 to 20 degrees start (range of motion 7 - 173)
-  for (int i = 20; i <= 110; i += (90/numberRows)){
+  
+  for (int i = 20; i <= 110; i+= (90/numberRows)){
     myservo.write(i);
     //set servo1 to 
-    for (int j = 0; j < 400; j+= (400/numberRows)){
+    for (int j = 0; j < 400; j+= (400/rowPoints)){
       myStepper.step(80);       
       //Record data into an array
       delay(100);
@@ -53,10 +57,25 @@ void loop() {
     // step one revolution in the other direction:
     myStepper.step(-stepsPerRevolution);
     delay(500);
-    }
-    //Send data through COM serial
-    for(int i = 0; i < 30; i++){
-      Serial.println(data[i]);
-    }
+   }
   
+  while (sent == -1){
+    if (Serial.available()){
+      //read incoming data
+      Serial.print('r');
+      char incomingByte = Serial.read();
+      if (incomingByte == 'a'){
+        //Send data through COM serial
+        Serial.flush();
+        for(int i = 0; i < 30; i++){
+          Serial.print(data[i]);
+          if(i < 29){
+            Serial.print(",");
+          }
+        }
+        sent = 0;
+      }
+    }
+  }
+  delay(10000);
 }

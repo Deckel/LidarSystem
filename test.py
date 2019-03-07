@@ -8,6 +8,9 @@ import time
 
 random.seed(56)
 
+def hasNumbers(inputString):
+    return any(char.isdigit() for char in inputString)
+
 #Cartesian to Polar coordinates
 def cartPolar(x, y, z):
     r     = np.sqrt(x**2 + y**2 + z**2)
@@ -21,9 +24,18 @@ def polarCart(r, theta, phi):
     z = r*np.cos(phi)
     return(x,y,z)
 #Initialize data
+    
+
+def read_serial(ser, length):
+    while True:
+        if ser.inWaiting() > 0:
+            break;
+        time.sleep(0.2)
+    return ser.read(length)
+
 def random_data(i): 
- 
-    ser = serial.Serial('COM4', baudrate = 9600, timeout = 1)
+    dataRaw = ""
+    ser = serial.Serial('COM4', baudrate = 9600, timeout=3)
     #Number of angles measurements are taken
     rowPoints =  5
     #Number of LIDAR rangefinders
@@ -32,35 +44,46 @@ def random_data(i):
     totalPoints = rowPoints*numberRows
     
     #Data set length n 
-    r = np.ones(totalPoints-rowPoints)
+    r = np.ones(totalPoints-rowPoints)*1000
     theta = np.ones(totalPoints-rowPoints)
     phi = np.ones(totalPoints-rowPoints)
     
+    while(1):
+        serBytes = read_serial(ser, 1)
+        if(serBytes == 'r'):
+            break
+    
+    time.sleep(3)
+    readTime = 0
+    #Lidar entry
+    ser.write('a'.encode('utf-8'))
+    #time.sleep(0.6)
+    while(readTime < 60):
+        serBytes = read_serial(ser, 1)
+        readTime += 1
+        dataRaw += str(serBytes)     
+    print(dataRaw)
+    if hasNumbers(dataRaw) == True:
+        print("YEEEEEEEES")
+        data = dataRaw.split(",")
+        print(len(data))
+        if len(data) == rowPoints*numberRows:
+            r = np.asarray(data)
+            print(r)
+        
+    print("FUUUUUUUUCK")
     #This method should be improved? 
     for i in range(0,totalPoints-rowPoints,rowPoints):
         for j in range(0,rowPoints):
             theta[i+j] = (2*np.pi) * j/rowPoints
             phi[i+j]   = (np.pi/2) * i/totalPoints
                        
-            #Lidar entry
-                        
-            time.sleep(2)
-            ser.write('a'.encode())
-            time.sleep(0.6)
-            dataPoint = ser.readline().decode("utf-8")
-            
-            dataPoint = dataPoint.strip('\n')
-            
-            dataPoint = int(dataPoint)
-            
-            
-            r[i+j] += dataPoint
-            print(r[i+j])
+    
            
     #Removing duplicate points for last row
-    r     = np.delete(r,list(np.arange(0,rowPoints-1)), axis = 0)
-    theta = np.delete(theta,list(np.arange(0,rowPoints-1)), axis = 0)
-    phi   = np.delete(phi,list(np.arange(0,rowPoints-1)))
+    #r     = np.delete(r,list(np.arange(0,rowPoints-1)), axis = 0)
+    #theta = np.delete(theta,list(np.arange(0,rowPoints-1)), axis = 0)
+    #phi   = np.delete(phi,list(np.arange(0,rowPoints-1)))
   
     #Convert spherical polar coordinates into cartesian
     x, y, z = polarCart(r, theta, phi)
@@ -73,7 +96,7 @@ def random_data(i):
     ax.set_zlim(0, 500)
     #ax.view_init(elev=0, azim=0)
     #ax.plot_trisurf(x,y,z, alpha=0.9)
-    ax.scatter(x,y,z)
+    #ax.scatter(x,y,z)
     time.sleep(100000)
     
 #Main
