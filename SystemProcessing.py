@@ -3,6 +3,7 @@ import matplotlib.animation as animation
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import serial
+import time
 
 
 def polarCart(r, theta, phi):
@@ -13,27 +14,26 @@ def polarCart(r, theta, phi):
     
 
 def lidarData(i):
-    #Initialize serial connection
-    ser = serial.Serial('COM4', baudrate = 9600, timeout=3)
-    
-    #Set the number of data points
-    rowPoints =  20
-    numberRows = 8
-    totalPoints = rowPoints*numberRows
+    #Globals
+    global rowPoints
+    global numberRows
+    global totalPoints
     
     #Data arrays
-    r = np.ones(totalPoints)*1000
+    global r
     phi = np.ones(totalPoints)
     theta = np.ones(totalPoints)
+    global data
     
     #Get lidar data
-    data = []
-    while 1:
-        varRead = ser.readline().decode('utf-8').replace('\r','').replace('\n','').replace('\x00','')
-        if varRead == "b":
-            break
-        data.append(varRead)
-    data = [ x for x in data if x is not "" ]
+    timeout = time.time() + 1
+    while time.time() < timeout:
+        if ser.inWaiting() > 0:
+            varRead = ser.readline().decode('utf-8').replace('\r','').replace('\n','').replace('\x00','')
+            if varRead == "b":
+                break
+            data.append(varRead)
+        data = [ x for x in data if x is not "" ]
     try:
         data = list(map(int,data))
         if(len(data)==len(r)):
@@ -57,11 +57,18 @@ def lidarData(i):
     plt.ylim((-500,500))
     ax.set_zlim(0, 500)
     ax.scatter(x,y,z)
-    ax.autoscale_view()
+    #ax.autoscale_view()
     
     
 #Main
+rowPoints =  20
+numberRows = 8
+totalPoints = rowPoints*numberRows
+data = []
+r = np.ones(totalPoints)*1000
+#Initialize serial connection
+ser = serial.Serial('COM4', baudrate = 9600, timeout=3)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ani = animation.FuncAnimation(fig, lidarData, interval=1000)
+ani = animation.FuncAnimation(fig, lidarData, interval=10000)
 plt.show()
