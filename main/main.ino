@@ -6,6 +6,8 @@
 #include "TFMini.h"
 
 const int stepsPerRevolution = 400;  // change this to fit the number of steps per revolution
+const int rowPoints = 5;
+const int numberRows = 6;
 
 // Setup software serial port 
 SoftwareSerial mySerial(12, 13); // Uno RX (TFMINI TX), Uno TX (TFMINI RX)
@@ -15,10 +17,6 @@ Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);
 // create servo object to control a servo
 Servo myservo;
 
-
-const int rowPoints = 5;
-const int numberRows = 5;
-
 void setup() {
   // set the speed at 60 rpm:
   myStepper.setSpeed(100);
@@ -26,56 +24,41 @@ void setup() {
   myservo.attach(6);
   // initialize the serial port:
   Serial.begin(9600);
-  // wait for serial port to connect. Needed for native USB port only
+  // Wait for serial port to connect. Needed for native USB port only
   while (!Serial);
-  //Initialize the data rate for the SoftwareSerial port
+  // Initialize the data rate for the SoftwareSerial port
   mySerial.begin(TFMINI_BAUDRATE);
-  //Initialize the TF Mini sensor
+  // Initialize the TF Mini sensor
   tfmini.begin(&mySerial);
 }
 
+
 void loop() {
-  int data[30];
-  int counter = 0;
+  int data[numberRows*rowPoints];
+  int index = 0;
   int sent = -1;
   
-  // step one revolution  in one direction:
-  // set servo2 to 20 degrees start (range of motion 7 - 173)
-  
-  for (int i = 20; i <= 110; i+= (90/numberRows)){
+  // Take measurements 
+  for (int i = 20; i <= 110; i+= (90/(numberRows-1))){ // Servo control
     myservo.write(i);
-    //set servo1 to 
-    for (int j = 0; j < 400; j+= (400/rowPoints)){
-      myStepper.step(80);       
-      //Record data into an array
+    for (int j = 0; j < 400; j+= (400/rowPoints)){ // Stepper Motor control
+      myStepper.step(400/rowPoints);       
       delay(100);
-      uint16_t dist = tfmini.getDistance(); 
-      data[counter] = dist;
-      counter += 1;
+      // Record data point
+      uint16_t dist = 100; //tfmini.getDistance(); 
+      data[index] = dist;
+      index += 1;
     }
-    delay(500);
-    // step one revolution in the other direction:
+
+    // Reset Stepper Motor to position 0    
     myStepper.step(-stepsPerRevolution);
     delay(500);
    }
   
-  while (sent == -1){
-    if (Serial.available()){
-      //read incoming data
-      Serial.print('r');
-      char incomingByte = Serial.read();
-      if (incomingByte == 'a'){
-        //Send data through COM serial
-        Serial.flush();
-        for(int i = 0; i < 30; i++){
-          Serial.print(data[i]);
-          if(i < 29){
-            Serial.print(",");
-          }
-        }
-        sent = 0;
-      }
-    }
+
+  //Send data through serial COM
+  for (int i = 0; i < sizeof(data)/sizeof(data[0]); i++){
+    Serial.println(data[i]);    
   }
-  delay(10000);
+  Serial.println('b');
 }
