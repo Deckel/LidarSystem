@@ -6,8 +6,8 @@
 #include "TFMini.h"
 
 const int stepsPerRevolution = 400;  // change this to fit the number of steps per revolution
-const int rowPoints = 5;
-const int numberRows = 6;
+const int rowPoints = 20;
+const int numberRows = 8;
 
 // Setup software serial port 
 SoftwareSerial mySerial(12, 13); // Uno RX (TFMINI TX), Uno TX (TFMINI RX)
@@ -39,7 +39,7 @@ void loop() {
   int sent = -1;
   
   // Take measurements 
-  for (int i = 20; i <= 110; i+= (90/(numberRows-1))){ // Servo control
+  for (int i = 25; i <= 115; i+= (90/(numberRows-1))){ // Servo control (25deg - 115deg)
     myservo.write(i);
     for (int j = 0; j < 400; j+= (400/rowPoints)){ // Stepper Motor control
       myStepper.step(400/rowPoints);       
