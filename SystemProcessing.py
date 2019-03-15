@@ -9,7 +9,7 @@ import time
 def polarCart(r, theta, phi):
     x = r*np.sin(phi)*np.cos(theta)
     y = r*np.sin(phi)*np.sin(theta)
-    z = r*np.cos(phi)
+    z = r*np.cos((np.pi/2) - phi)
     return(x,y,z)
     
 
