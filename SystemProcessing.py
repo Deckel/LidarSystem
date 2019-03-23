@@ -7,8 +7,8 @@ import time
 
 
 def polarCart(r, theta, phi):
-    x = r*np.sin(phi)*np.cos(theta)
-    y = r*np.sin(phi)*np.sin(theta)
+    x = r*np.sin((np.pi/2) - phi)*np.cos(theta)
+    y = r*np.sin((np.pi/2)- phi)*np.sin(theta)
     z = r*np.cos((np.pi/2) - phi)
     return(x,y,z)
     
@@ -30,7 +30,7 @@ def lidarData(i):
     while time.time() < timeout:
         if ser.inWaiting() > 0:
             varRead = ser.readline().decode('utf-8').replace('\r','').replace('\n','').replace('\x00','')
-            if varRead == "b":
+            if varRead == "EndOfData":
                 break
             data.append(varRead)
         data = [ x for x in data if x is not "" ]
