@@ -36,8 +36,7 @@ void setup() {
 void loop() {
   int data[numberRows*rowPoints];
   int index = 0;
-  int sent = -1;
-  
+    
   // Take measurements 
   for (int i = 25; i < 115; i+= (90/(numberRows))){ // Servo control (25deg - 115deg)
     myservo.write(i);
