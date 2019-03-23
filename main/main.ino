@@ -44,7 +44,7 @@ void loop() {
       myStepper.step(400/rowPoints);       
       delay(100);
       // Record data point
-      uint16_t dist = 100; //tfmini.getDistance(); 
+      uint16_t dist = tfmini.getDistance(); 
       data[index] = dist;
       index += 1;
     }
