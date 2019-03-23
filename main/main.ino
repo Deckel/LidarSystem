@@ -39,9 +39,9 @@ void loop() {
   int sent = -1;
   
   // Take measurements 
-  for (int i = 25; i <= 115; i+= (90/(numberRows-1))){ // Servo control (25deg - 115deg)
+  for (int i = 25; i < 115; i+= (90/(numberRows))){ // Servo control (25deg - 115deg)
     myservo.write(i);
-    for (int j = 0; j < 400; j+= (400/rowPoints)){ // Stepper Motor control
+    for (int j = 0; j < 400; j+= (400/rowPoints)){ // Stepper Motor control (0deg - 360deg)
       myStepper.step(400/rowPoints);       
       delay(100);
       // Record data point
@@ -56,9 +56,9 @@ void loop() {
    }
   
 
-  //Send data through serial COM
+  // Send data through serial COM
   for (int i = 0; i < sizeof(data)/sizeof(data[0]); i++){
     Serial.println(data[i]);    
   }
-  Serial.println('b');
+  Serial.println('EndOfData');
 }
