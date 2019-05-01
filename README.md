@@ -7,4 +7,4 @@ An Arduino is used in conjuction with a Servo, Stepper Motor and a Benewake TFMi
 
 Written by Deckel de Lange
 
-Lisencing under Univeristy of Kent
+Licencing under Univeristy of Kent
